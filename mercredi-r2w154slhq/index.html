@@ -21,13 +21,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
 <button id="muteBtn" aria-label="Couper le son"></button>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="notif" role="status"><div class="av">A</div><div><small>maintenant</small><b>Aminata</b><span id="notifTxt"></span></div></div>
+<div id="notif" role="status"><div class="av" id="notifAv">A</div><div><small>maintenant</small><b id="notifFrom">Aminata</b><span id="notifTxt"></span></div></div>
 
 <!-- ================= 0. L'ENVELOPPE ================= -->
 <section class="scene active" id="s-env">
@@ -207,6 +207,6 @@
 <!-- modale -->
 <div id="modal" aria-modal="true" role="dialog"><div class="backdrop"></div><div class="sheet"><button class="close" aria-label="Fermer">×</button><div id="mBody"></div></div></div>
 
-<script src="app.js?v=1"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

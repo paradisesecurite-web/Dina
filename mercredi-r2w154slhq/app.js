@@ -253,9 +253,20 @@ const centerOf = el => { const r = el.getBoundingClientRect(); return [r.left + 
    ========================================================= */
 let toastT;
 function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
-let notifT;
-function notif(msg) { $('#notifTxt').textContent = msg; $('#notif').classList.add('show'); A.tone(1568, A.now(), 0.06, 0.15, 'sine', 0); A.tone(2093, A.now() + 0.12, 0.06, 0.2, 'sine', 0); clearTimeout(notifT); notifT = setTimeout(() => $('#notif').classList.remove('show'), 4800); }
-$('#notif').addEventListener('click', () => $('#notif').classList.remove('show'));
+let notifT, notifAction = null;
+function notif(msg, from = 'Aminata', onOpen = null, ms = 4800) {
+  $('#notifFrom').textContent = from; $('#notifAv').textContent = from[0];
+  $('#notifAv').classList.toggle('j', from === 'Jordan');
+  $('#notifTxt').innerHTML = ''; $('#notifTxt').textContent = msg;
+  if (onOpen) $('#notifTxt').insertAdjacentHTML('beforeend', '<span class="hint">Touche pour lire</span>');
+  notifAction = onOpen;
+  $('#notif').classList.add('show'); A.tone(1568, A.now(), 0.06, 0.15, 'sine', 0); A.tone(2093, A.now() + 0.12, 0.06, 0.2, 'sine', 0);
+  clearTimeout(notifT); notifT = setTimeout(() => { $('#notif').classList.remove('show'); notifAction = null; }, ms);
+}
+$('#notif').addEventListener('click', () => {
+  $('#notif').classList.remove('show'); clearTimeout(notifT);
+  const f = notifAction; notifAction = null; if (f) f();
+});
 function go(id) {
   const cur = $('.scene.active'); if (cur) cur.classList.remove('active');
   const nx = $('#' + id); nx.scrollTop = 0; nx.classList.add('active');
@@ -521,14 +532,22 @@ function openModal(id) {
   const body = $('#mBody'); body.innerHTML = '';
   $('#modal').classList.add('show'); $('#modal .sheet').scrollTop = 0;
   MODALS[id](body);
-  if (id !== 'bill') markDone(id);
+  if (id !== 'bill' && id !== 'jordan') markDone(id);
 }
 function closeModal() {
   $('#modal').classList.remove('show'); $('#mBody').innerHTML = ''; A.tap();
   if (opens === 2 && !notified.a) { notified.a = 1; setTimeout(() => notif('Alors ?? Raconte-moi TOUT 👀'), 900); }
+  if (opens >= 4 && !jordanRead && (notified.j || 0) < 3 && opens !== (notified.jAt || 0)) {
+    notified.j = (notified.j || 0) + 1; notified.jAt = opens;
+    whenFree(() => notif(notified.j > 1 ? '3 nouveaux messages' : 'Cc ma chéri sa va ? 😘', 'Jordan', () => openModal('jordan'), 8000), 1200);
+    return;
+  }
   if (done.size >= 5 && !notified.b) { notified.b = 1; setTimeout(() => notif('Je t\'appelle dans 5 min. Ou dans 3 heures, on verra 📞'), 900); }
 }
 const notified = {};
+/* attend que la notification précédente soit partie avant d'en montrer une autre */
+function whenFree(fn, delay) { setTimeout(function check() { if ($('#notif').classList.contains('show') || $('#modal').classList.contains('show')) setTimeout(check, 700); else fn(); }, delay); }
+let jordanRead = false;
 $('#modal .close').addEventListener('click', closeModal);
 $('#modal .backdrop').addEventListener('click', closeModal);
 
@@ -774,6 +793,38 @@ const MODALS = {
       </div>`;
     const bl = $('#bloom', b);
     bl.addEventListener('click', () => { if (bl.classList.contains('open')) return; bl.classList.add('open'); A.sparkle(); setTimeout(() => rain(26, 'petal'), 500); });
+  },
+
+  /* ----- le message de Jordan (reproduit sans correction) ----- */
+  async jordan(b) {
+    jordanRead = true;
+    const M = [
+      ['Cc ma chéri sa va ?', '20:41'],
+      ['Tu fé koi se soir ? Jsui o boulo jusca 19h 😩', '20:41'],
+      ['Jai acheter des pâte pour se soir, ta envi ? 🍝', '20:42'],
+      ['Ou alor on se fé un resto. Jai trouver un italien vrémen tro bien, ya des pizza é des spagetti 🍕', '20:43'],
+      ['Bisou, a tout a lheur ❤️', '20:43']
+    ];
+    b.innerHTML = `<div class="chat"><div class="chat-head"><div class="av">J</div><div><b>Jordan</b><small id="jStatus">en ligne</small></div></div>
+      <div class="chat-body" id="jBody"><div class="chat-day">AUJOURD'HUI</div></div>
+      <p class="chat-foot" id="jFoot">Message reproduit fidèlement, sans aucune correction.</p></div>`;
+    const body = $('#jBody', b), sheet = $('#modal .sheet'), chat = $('.chat', b), st = $('#jStatus', b), foot = $('#jFoot', b);
+    for (const [t, h] of M) {
+      if (!chat.isConnected) return;
+      st.textContent = 'écrit…';
+      const ty = document.createElement('div'); ty.className = 'typing-bub'; ty.innerHTML = '<i></i><i></i><i></i>'; body.appendChild(ty);
+      sheet.scrollTop = sheet.scrollHeight;
+      await sleep(700 + t.length * 18);
+      if (!chat.isConnected) return;
+      ty.remove();
+      const m = document.createElement('div'); m.className = 'bub'; m.textContent = t; m.insertAdjacentHTML('beforeend', `<time>${h}</time>`);
+      body.appendChild(m); A.tone(1175, A.now(), 0.04, 0.08, 'sine', 0);
+      sheet.scrollTop = sheet.scrollHeight;
+      await sleep(350);
+    }
+    if (!chat.isConnected) return;
+    st.textContent = 'en ligne';
+    await sleep(900); foot.classList.add('on'); sheet.scrollTop = sheet.scrollHeight;
   },
 
   /* ----- l'addition ----- */
