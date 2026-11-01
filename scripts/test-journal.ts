@@ -15,12 +15,11 @@ const base: Settings = {
 };
 
 (async () => {
-  const t0 = Date.now();
-  const raw = await buildJournal(base, { taste: {}, cryptoNames: { bitcoin: 'Bitcoin' }, forAI: true });
-  const nItems = raw.sections.reduce((n, s) => n + s.items.length, 0);
-  console.log(`Collecte : ${raw.sections.length} rubriques, ${nItems} infos, ${(Date.now() - t0) / 1000}s`);
-  raw.sections.forEach(s => console.log(`  - ${s.title}${s.priority ? ' ★' : ''} : ${s.items.length} infos (${s.items.filter(i => i.desc).length} avec résumé)`));
-  for (const [style, minutes] of [['chaleureux', 10], ['pro', 3], ['zen', 20]] as const) {
+  for (const [style, minutes] of [['chaleureux', 10], ['pro', 3], ['zen', 25]] as const) {
+    const t0 = Date.now();
+    const raw = await buildJournal({ ...base, minutes }, { taste: {}, cryptoNames: { bitcoin: 'Bitcoin' }, forAI: true });
+    const nItems = raw.sections.reduce((n, s) => n + s.items.length, 0);
+    console.log(`\nCollecte ${minutes} min : ${raw.sections.length} rubriques, ${nItems} infos, ${(Date.now() - t0) / 1000}s`);
     const t1 = Date.now();
     const j = await writeWithAI({ ...base, style, minutes }, raw);
     const segs = toSegments(j, { ...base, style, minutes });

@@ -53,9 +53,9 @@ function localSection(id: RubriqueId, s: Settings, d: Date): JournalSection | nu
 
 // Quantité d'infos récupérées selon la durée choisie (2 à 60 minutes).
 export const volume = (minutes: number) => ({
-  news: Math.min(20, Math.max(2, Math.round(minutes / 2) + (minutes <= 5 ? 0 : 2))),
-  perTopic: Math.min(8, Math.max(1, Math.round(minutes / 5) + (minutes <= 5 ? 0 : 1))),
-  perFollow: Math.min(5, Math.max(1, Math.round(minutes / 10) + 1)),
+  news: Math.min(24, Math.max(2, Math.round(minutes * 0.6) + (minutes <= 5 ? 0 : 2))),
+  perTopic: Math.min(10, Math.max(1, Math.round(minutes / 4) + (minutes <= 5 ? 0 : 1))),
+  perFollow: Math.min(6, Math.max(1, Math.round(minutes / 8) + 1)),
 });
 
 async function remoteSection(id: RubriqueId, s: Settings, ctx: BuildContext, d: Date): Promise<JournalSection | null> {

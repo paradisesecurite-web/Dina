@@ -71,10 +71,10 @@ Règles d'écriture :
 - Ne recopie jamais les phrases des articles. Ne cite pas les médias à chaque phrase ; mentionne une source seulement si c'est utile (« selon Le Monde… »).
 - N'invente AUCUN fait, chiffre, date, nom, score, résultat ou citation absent des informations fournies. Ne déduis jamais l'issue d'un match, d'un vote ou d'un procès si elle n'est pas écrite noir sur blanc. Tu peux ajouter du contexte général bien établi (définition, rappel historique connu) pour aider à comprendre.
 - Dans une rubrique, ignore les informations qui ne correspondent pas vraiment à son sujet (par exemple du football dans une rubrique « e-sport »).
-- Si les informations sont maigres pour un sujet, fais court plutôt que de broder.
+- Si les informations sont maigres pour un sujet, n'invente rien : développe plutôt le contexte général, les enjeux et ce qu'il faut savoir pour comprendre (sans ajouter de faits d'actualité non fournis).
 - Écris les nombres comme ils se disent (« vingt-trois degrés », « deux virgule cinq pour cent ») quand c'est plus naturel à l'oral, et écris en toutes lettres les sigles difficiles à prononcer.
-- Tutoie l'auditeur. Utilise son prénom une ou deux fois au maximum.
-- Respecte l'ordre des rubriques et la longueur indiquée pour chacune. La LONGUEUR TOTALE est importante : l'auditeur a choisi une durée, vise le nombre de mots total demandé (à 15 % près). Pour un journal court, une ou deux phrases suffisent pour les rubriques secondaires ; pour un journal long, développe, explique le contexte et les enjeux de chaque sujet.
+- Tutoie TOUJOURS l'auditeur, quel que soit le ton (même « professionnel »). Utilise son prénom une ou deux fois au maximum.
+- Respecte l'ordre des rubriques et la longueur indiquée pour chacune. La LONGUEUR TOTALE est importante : l'auditeur a choisi une durée, vise le nombre de mots total demandé (à 15 % près). Pour un journal court, une ou deux phrases suffisent pour les rubriques secondaires. Pour un journal long (plus de 10 minutes), c'est une vraie émission : développe chaque sujet important en plusieurs paragraphes, explique le contexte, les enjeux, les réactions, les chiffres fournis, et fais des liens entre les sujets. Ne rends JAMAIS un texte deux fois plus court que demandé.
 - Rubrique « bonne_nouvelle » : choisis uniquement une info vraiment positive ou réjouissante (solidarité, découverte, réussite, nature, insolite qui fait sourire). Ignore les faits divers tristes ou les conseils pratiques. S'il n'y a rien de vraiment positif, dis une courte pensée positive à la place.
 - Rubriques horoscope, citation, mot du jour, saint du jour : présente-les avec légèreté.
 - Pour chaque rubrique, renvoie dans "sources" les numéros [n] des informations réellement utilisées.
@@ -89,7 +89,7 @@ function budgets(sections: InSection[], minutes: number) {
 }
 
 function sectionText(s: InSection, words: number) {
-  const lines = [`### Rubrique id="${s.id}" titre="${s.title}"${s.priority ? ' (PRIORITAIRE)' : ''} — environ ${words} mots`];
+  const lines = [`### Rubrique id="${s.id}" titre="${s.title}"${s.priority ? ' (PRIORITAIRE)' : ''} — longueur visée : ${words} mots`];
   if (s.facts) lines.push(s.facts);
   for (const it of s.items ?? []) lines.push(`[${it.n}] ${it.source ? `(${it.source}) ` : ''}${it.title}${it.desc ? ` — ${it.desc}` : ''}`);
   return lines.join('\n');
