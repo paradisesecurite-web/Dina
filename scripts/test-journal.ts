@@ -8,7 +8,7 @@ const base: Settings = {
   ...DEFAULT_SETTINGS, onboarded: true, firstName: 'Yohann', style: 'chaleureux', tier: 'premium', minutes: 10, deviceId: 'test-automatique-0002',
   city: { name: 'Lyon', lat: 45.76, lon: 4.83 },
   rubriques: ['meteo', 'actu_france', 'actu_monde', 'libre', 'sport', 'crypto', 'carburant', 'saint', 'horoscope', 'mot', 'citation', 'bonne_nouvelle'],
-  topics: [{ id: 'immo', label: 'Immobilier', query: 'immobilier prix' }, { id: 'esport', label: 'E-sport', query: 'e-sport' }, { id: 'perso-1', label: "L'équitation", query: 'équitation' }],
+  topics: [{ id: 'immo', label: 'Immobilier', query: 'immobilier prix' }, { id: 'esport', label: 'E-sport', query: 'esport compétition jeux vidéo' }, { id: 'perso-1', label: "L'équitation", query: 'équitation' }],
   priorities: ['veille:esport'], wellbeing: 'pensee', sign: 'Lion',
   follows: [{ kind: 'team', id: '133714', name: 'Paris SG', query: '"Paris SG"' }, { kind: 'player', name: 'Jannik Sinner', query: '"Sinner"' }, { kind: 'competition', name: 'Ligue 1', query: 'Ligue 1' }],
   cryptos: ['bitcoin'], language: 'anglais', fuel: 'gazole',
@@ -20,7 +20,7 @@ const base: Settings = {
   const nItems = raw.sections.reduce((n, s) => n + s.items.length, 0);
   console.log(`Collecte : ${raw.sections.length} rubriques, ${nItems} infos, ${(Date.now() - t0) / 1000}s`);
   raw.sections.forEach(s => console.log(`  - ${s.title}${s.priority ? ' ★' : ''} : ${s.items.length} infos (${s.items.filter(i => i.desc).length} avec résumé)`));
-  for (const [style, minutes] of [['chaleureux', 10], ['decale', 4]] as const) {
+  for (const [style, minutes] of [['chaleureux', 10], ['pro', 3], ['zen', 20]] as const) {
     const t1 = Date.now();
     const j = await writeWithAI({ ...base, style, minutes }, raw);
     const segs = toSegments(j, { ...base, style, minutes });

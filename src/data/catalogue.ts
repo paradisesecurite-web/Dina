@@ -30,7 +30,7 @@ export const CATALOGUE: Category[] = [
   ] },
   { id: 'tech', label: 'Tech & sciences', icon: '🔬', items: [
     q('ia', 'Intelligence artificielle', '🤖', 'intelligence artificielle'), q('tech', 'High-tech', '📱', 'high-tech smartphone'), q('jeux', 'Jeux vidéo', '🎮', 'jeux vidéo'),
-    q('esport', 'E-sport', '🕹️', 'e-sport'), q('cyber', 'Cybersécurité', '🛡️', 'cybersécurité'), q('sciences', 'Sciences', '🔬', 'découverte scientifique'),
+    q('esport', 'E-sport', '🕹️', 'esport compétition jeux vidéo'), q('cyber', 'Cybersécurité', '🛡️', 'cybersécurité'), q('sciences', 'Sciences', '🔬', 'découverte scientifique'),
     q('espace', 'Espace & astronomie', '🔭', 'espace astronomie'), q('climat', 'Climat & environnement', '🌱', 'climat environnement'), q('animaux', 'Animaux & nature', '🦊', 'animaux nature'),
     q('medecine', 'Recherche médicale', '🧬', 'recherche médicale'), q('archeo', 'Archéologie', '🏺', 'archéologie découverte'),
   ] },

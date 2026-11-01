@@ -69,22 +69,23 @@ Règles d'écriture :
 - Écris pour l'oreille : phrases fluides, transitions naturelles entre les sujets, aucune liste, aucun tiret, aucun emoji, aucun titre lu « à la récitation ».
 - Raconte et explique chaque sujet avec tes propres mots : qui, quoi, pourquoi c'est important. Regroupe les articles qui parlent du même événement et croise les sources.
 - Ne recopie jamais les phrases des articles. Ne cite pas les médias à chaque phrase ; mentionne une source seulement si c'est utile (« selon Le Monde… »).
-- N'invente AUCUN fait, chiffre, date, nom ou citation absent des informations fournies. Tu peux ajouter du contexte général bien établi (définition, rappel historique connu) pour aider à comprendre.
+- N'invente AUCUN fait, chiffre, date, nom, score, résultat ou citation absent des informations fournies. Ne déduis jamais l'issue d'un match, d'un vote ou d'un procès si elle n'est pas écrite noir sur blanc. Tu peux ajouter du contexte général bien établi (définition, rappel historique connu) pour aider à comprendre.
+- Dans une rubrique, ignore les informations qui ne correspondent pas vraiment à son sujet (par exemple du football dans une rubrique « e-sport »).
 - Si les informations sont maigres pour un sujet, fais court plutôt que de broder.
 - Écris les nombres comme ils se disent (« vingt-trois degrés », « deux virgule cinq pour cent ») quand c'est plus naturel à l'oral, et écris en toutes lettres les sigles difficiles à prononcer.
 - Tutoie l'auditeur. Utilise son prénom une ou deux fois au maximum.
-- Respecte l'ordre des rubriques et la longueur indiquée pour chacune (approximative).
+- Respecte l'ordre des rubriques et la longueur indiquée pour chacune. La LONGUEUR TOTALE est importante : l'auditeur a choisi une durée, vise le nombre de mots total demandé (à 15 % près). Pour un journal court, une ou deux phrases suffisent pour les rubriques secondaires ; pour un journal long, développe, explique le contexte et les enjeux de chaque sujet.
 - Rubrique « bonne_nouvelle » : choisis uniquement une info vraiment positive ou réjouissante (solidarité, découverte, réussite, nature, insolite qui fait sourire). Ignore les faits divers tristes ou les conseils pratiques. S'il n'y a rien de vraiment positif, dis une courte pensée positive à la place.
 - Rubriques horoscope, citation, mot du jour, saint du jour : présente-les avec légèreté.
 - Pour chaque rubrique, renvoie dans "sources" les numéros [n] des informations réellement utilisées.
 - "paragraphs" : découpe chaque rubrique en paragraphes de 2 à 5 phrases (chaque paragraphe sera lu d'une traite).`;
 
 function budgets(sections: InSection[], minutes: number) {
-  const total = Math.max(250, Math.round(minutes * 140));
+  const total = Math.max(220, Math.round(minutes * 150));
   const base: Record<string, number> = { actu_france: 3, actu_monde: 3, libre: 2, sport: 2, meteo: 1, bonne_nouvelle: 1, histoire: 1, bourse: 1, crypto: 1, musique: 1, cine: 1.5, evenements: 1.5 };
   const w = sections.map(s => (base[s.id] ?? (s.id.startsWith('veille') ? 2 : 0.6)) * (s.priority ? 2 : 1));
   const sum = w.reduce((a, b) => a + b, 0) || 1;
-  return sections.map((_, i) => Math.max(25, Math.round((total - 60) * w[i] / sum)));
+  return sections.map((_, i) => Math.max(minutes <= 5 ? 12 : 25, Math.round((total - 60) * w[i] / sum)));
 }
 
 function sectionText(s: InSection, words: number) {
@@ -110,7 +111,7 @@ async function writeJournal(env: Env, model: string, body: any) {
   });
   const profile = `Auditeur : ${p.firstName || 'sans prénom'}${p.city ? `, habite à ${p.city}` : ''}. Date : ${p.date || today()}.
 Ton demandé : ${style.write}.
-Durée totale visée : environ ${minutes} minutes (${Math.round(minutes * 140)} mots au total, c'est approximatif).
+Durée totale visée : environ ${minutes} minutes, soit environ ${Math.round(minutes * 150)} mots au total pour l'ensemble du journal${groups.length > 1 ? ' (toutes parties confondues)' : ''}.
 ${(body.dislikes ?? []).length ? `Sujets qui ne l'intéressent pas (à éviter ou à survoler) : ${body.dislikes.slice(0, 30).join(', ')}.` : ''}
 ${(body.likes ?? []).length ? `Sujets qu'il apprécie : ${body.likes.slice(0, 30).join(', ')}.` : ''}`;
   const isSonnet = model.startsWith('claude-sonnet');
