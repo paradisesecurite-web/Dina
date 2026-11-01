@@ -1,7 +1,0 @@
-name: ping
-on: [push]
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl -s "https://api.open-meteo.com/v1/forecast?latitude=45.76&longitude=4.83&current=temperature_2m" | head -c 300
