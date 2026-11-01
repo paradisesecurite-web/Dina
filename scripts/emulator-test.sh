@@ -12,7 +12,7 @@ wait_for() { for i in $(seq 1 ${2:-15}); do ui; python3 scripts/find.py ui.xml "
 # Touche un élément ; s'il n'est pas visible, fait défiler l'écran (jusqu'à 6 fois).
 tap() { for i in 1 2 3 4 5 6 7; do ui; c=$(python3 scripts/find.py ui.xml "$1") && { adb shell input tap $c; echo "👉 $1"; sleep ${2:-2}; return 0; }; [ $i -ge 2 ] && swipe_up || sleep 1; done; fail "introuvable : $1"; return 1; }
 typ() { tap "$1" 1 && adb shell input text "$2" && sleep ${3:-2}; adb shell input keyevent 111 >/dev/null 2>&1; sleep 1; }
-allow() { for t in "Autoriser*" "Allow*" "While using the app" "Only this time" "Lorsque l'appli*"; do ui; c=$(python3 scripts/find.py ui.xml "$t") && { adb shell input tap $c; echo "🔓 autorisation"; sleep 1.5; return 0; }; done; return 0; }
+allow() { for k in $(seq 1 10); do ui; for t in "While using the app" "Only this time" "Lorsque l'appli*" "Autoriser*"; do c=$(python3 scripts/find.py ui.xml "$t") && { adb shell input tap $c; echo "🔓 autorisation : $t"; sleep 2; return 0; }; done; sleep 1; done; echo "(pas de demande d'autorisation)"; }
 
 adb install -r "$APK" || exit 1
 adb logcat -c
@@ -35,19 +35,22 @@ tap "Continuer"; wait_for "Choisis ta formule"; shot 08-formule
 tap "Continuer"; wait_for "Ma proposition"; shot 09-proposition
 tap "C'est parti !" 5
 wait_for "Raconté par l'IA*" 150 || wait_for "Version simple*" 5; sleep 3; shot 10-journal
-swipe_up; shot 11-journal-suite; swipe_up; swipe_up; shot 12-journal-bas
-for i in 1 2 3 4 5 6 7 8; do swipe_down; done
-tap "Écouter" 6; shot 13a-ecoute-6s; sleep 12; shot 13b-ecoute-18s; sleep 15; shot 13c-ecoute-33s
+# Réglages d'abord (la roue est en haut de l'écran), puis retour.
+tap "Réglages" 3; wait_for "Apparence" 10; shot 11-reglages
+adb shell input keyevent 4; sleep 3
+swipe_up; shot 12-journal-suite; swipe_up; swipe_up; shot 13-journal-bas
+# Écoute avec le mini-lecteur (toujours visible) : pas besoin de remonter l'écran.
+tap "Lecture" 6; shot 14a-ecoute-6s; sleep 14; shot 14b-ecoute-20s; sleep 20; shot 14c-ecoute-40s
 echo "===== Lecture audio ====="
-adb logcat -d | grep -E "\[matinal\]|ExoPlayerImplInternal|Playback error|HttpDataSource|ReactNativeJS" | tail -25
-tap "Pause" 2
-tap "Poser une question" 3; allow; sleep 4; shot 14-question
+adb logcat -d | grep -E "\\[matinal\\]|Playback error|HttpDataSource" | tail -25
+tap "Pause" 2; shot 15-pause
+tap "Poser une question" 2; allow; sleep 5; shot 16-question
 tap "Écrire plutôt" 2 || true
 typ "Ex. : explique-moi*" "Explique moi le premier sujet de France" 1
-tap "Envoyer" 2; wait_for "Réponse" 60; sleep 3; shot 15-reponse
-tap "Reprendre" 4; tap "Pause" 2
-for i in 1 2 3 4 5 6 7 8; do swipe_down; done
-tap "Réglages" 3; wait_for "Apparence" 10; shot 16-reglages
+tap "Envoyer" 2; wait_for "Réponse" 60; sleep 8; shot 17-reponse
+tap "Reprendre" 6; shot 18-reprise
+echo "===== Après la question ====="
+adb logcat -d | grep -E "\\[matinal\\]" | tail -6
 echo "===== Erreurs dans le journal Android ====="
 adb logcat -d | grep -E "FATAL EXCEPTION|ReactNativeJS.*(rror|ERROR)" | head -40
 echo "===== Fin ====="
