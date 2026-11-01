@@ -38,7 +38,7 @@ export function CityPicker({ value, onChange }: { value?: Place; onChange: (p: P
   return (
     <View style={{ gap: 10 }}>
       {value ? <Txt v="h3">📍 {value.name}{value.admin ? `, ${value.admin}` : ''}</Txt> : null}
-      <Field value={q} onChangeText={setQ} placeholder={value ? 'Changer de ville…' : 'Tape le nom de ta ville'} accessibilityLabel="Ville" autoCorrect={false} />
+      <Field icon="pin" value={q} onChangeText={setQ} placeholder={value ? 'Changer de ville…' : 'Tape le nom de ta ville'} accessibilityLabel="Ville" autoCorrect={false} />
       {busy ? <ActivityIndicator color={t.colors.accent} /> : null}
       {res.map((p, i) => (
         <Pressable key={i} onPress={() => { onChange(p); setQ(''); setRes([]); }} style={({ pressed }) => ({ paddingVertical: 10, paddingHorizontal: 12, borderRadius: t.radius, backgroundColor: pressed ? t.colors.bg2 : 'transparent', borderBottomWidth: 1, borderColor: t.colors.border })}>
@@ -47,7 +47,7 @@ export function CityPicker({ value, onChange }: { value?: Place; onChange: (p: P
         </Pressable>
       ))}
       {msg ? <Txt v="small">{msg}</Txt> : null}
-      <Btn kind="secondary" small icon="📍" label="Utiliser ma position" onPress={locate} />
+      <Btn kind="secondary" small icon="pin" label="Utiliser ma position" onPress={locate} />
     </View>
   );
 }

@@ -30,7 +30,7 @@ export function SearchAdd<T>({ placeholder, search, items, label, sub, keyOf, on
           {items.map(x => <Chip key={keyOf(x)} label={`${label(x)}  ✕`} on onPress={() => onRemove(x)} />)}
         </View>
       ) : null}
-      <Field value={q} onChangeText={setQ} placeholder={placeholder} autoCorrect={false} accessibilityLabel={placeholder} />
+      <Field icon="libre" value={q} onChangeText={setQ} placeholder={placeholder} autoCorrect={false} accessibilityLabel={placeholder} />
       {busy ? <ActivityIndicator color={t.colors.accent} /> : null}
       {res.filter(r => !items.some(i => keyOf(i) === keyOf(r))).map(r => (
         <Pressable key={keyOf(r)} onPress={() => { onAdd(r); setQ(''); setRes([]); }}

@@ -208,8 +208,10 @@ export default {
         const u = await getUsage(env, device);
         return json({ usage: u, tiers: TIERS, charsPerMinute: CHARS_PER_MINUTE });
       }
-      if (req.method !== 'POST') return fail(405, 'Méthode non autorisée.');
-      const body = await req.json<any>().catch(() => ({}));
+      // La voix IA peut aussi être demandée en GET : le lecteur audio du téléphone la lit directement.
+      const isTtsGet = req.method === 'GET' && url.pathname === '/v1/tts';
+      if (req.method !== 'POST' && !isTtsGet) return fail(405, 'Méthode non autorisée.');
+      const body = isTtsGet ? Object.fromEntries(url.searchParams) : await req.json<any>().catch(() => ({}));
       const tier = TIERS[tierOf(body)];
       if (!tier.model) return fail(402, 'La formule gratuite n\'utilise pas l\'IA.');
       const u = await getUsage(env, device);

@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { getText } from './http';
 
-export type FeedItem = { title: string; link: string; date: number; source: string; category?: string };
+export type FeedItem = { title: string; link: string; date: number; source: string; category?: string; desc?: string };
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -45,6 +45,7 @@ export function parseFeed(xml: string, source: string): FeedItem[] {
       date: Date.parse(text(it.pubDate) || text(it['dc:date'])) || 0,
       source,
       category: cleanText(text(asArray(it.category)[0])),
+      desc: cleanText(text(it.description)).slice(0, 400) || undefined,
     });
   }
   for (const e of entries) {

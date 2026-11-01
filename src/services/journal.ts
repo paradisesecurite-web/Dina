@@ -1,18 +1,30 @@
 import type { Journal, RubriqueId, Settings } from '../types';
 import { buildJournal } from '../journal/compose';
 import { loadCachedJournal, loadCryptoNames, loadTaste, saveJournal } from './storage';
+import { writeWithAI } from './ai';
 
 // Empreinte des réglages qui changent le contenu (pour savoir si le journal en cache est encore bon).
-const fingerprint = (s: Settings) => JSON.stringify([s.rubriques, s.city?.name, s.length, s.tone, s.wellbeing, s.sign, s.cryptos, s.stocks, s.artists, s.teams, s.language, s.freeTopics, s.commute, s.fuel, s.firstName]);
+const fingerprint = (s: Settings) => JSON.stringify([s.rubriques, s.topics, s.priorities, s.follows, s.city?.name, s.minutes, s.style, s.tier, s.wellbeing, s.sign, s.cryptos, s.stocks, s.artists, s.language, s.commute, s.fuel, s.firstName]);
 
-export async function getJournal(s: Settings, force = false): Promise<Journal> {
+export type JournalResult = { journal: Journal; notice?: string };
+
+export async function getJournal(s: Settings, force = false): Promise<JournalResult> {
   const cached = (await loadCachedJournal()) as (Journal & { fp?: string }) | null;
   const fresh = cached && new Date(cached.createdAt).toDateString() === new Date().toDateString() && Date.now() - Date.parse(cached.createdAt) < 3 * 3600e3;
-  if (!force && cached && fresh && cached.fp === fingerprint(s)) return cached;
+  if (!force && cached && fresh && cached.fp === fingerprint(s)) return { journal: cached };
   const [taste, cryptoNames] = await Promise.all([loadTaste(), loadCryptoNames()]);
-  const j = await buildJournal(s, { taste, cryptoNames });
-  await saveJournal({ ...j, fp: fingerprint(s) } as Journal);
-  return j;
+  const useAI = s.tier !== 'gratuit';
+  const raw = await buildJournal(s, { taste, cryptoNames, forAI: useAI });
+  let journal = raw, notice: string | undefined;
+  if (useAI) {
+    try { journal = await writeWithAI(s, raw); }
+    catch (e: any) {
+      notice = e?.status === 429 ? 'Tu as atteint le nombre de journaux IA du jour : voici la version simple.' : 'L\'IA n\'a pas répondu : voici la version simple du journal.';
+      journal = await buildJournal(s, { taste, cryptoNames, forAI: false });
+    }
+  }
+  await saveJournal({ ...journal, fp: fingerprint(s) } as Journal);
+  return { journal, notice };
 }
 
 // Suggestions de rubriques selon ce que l'utilisateur aime.

@@ -12,7 +12,16 @@ async function read<T>(k: string, d: T): Promise<T> {
 }
 async function write(k: string, v: unknown) { try { await AsyncStorage.setItem(k, JSON.stringify(v)); } catch {} }
 
-export const loadSettings = () => read<Settings>(K.settings, DEFAULT_SETTINGS);
+// Charge les réglages et convertit ceux de la première version.
+export async function loadSettings(): Promise<Settings> {
+  const s = await read<Settings>(K.settings, DEFAULT_SETTINGS);
+  const anyS = s as any;
+  if (!s.topics?.length && anyS.freeTopics?.length) s.topics = anyS.freeTopics.map((t: string, i: number) => ({ id: `libre${i}`, label: t, query: t, icon: '🔎' }));
+  if (!s.follows?.length && anyS.teams?.length) s.follows = anyS.teams.map((t: any) => ({ kind: 'team', id: t.id, name: t.name, sport: t.sport, query: `"${t.name}"` }));
+  if (!anyS.minutes) s.minutes = anyS.length === 'flash' ? 3 : 10;
+  s.topics ??= []; s.follows ??= []; s.priorities ??= []; s.dislikes ??= [];
+  return s;
+}
 export const saveSettings = (s: Settings) => write(K.settings, s);
 
 // Goûts : chaque mot-clé gagne ou perd des points avec « j'aime » / « pas intéressé ».

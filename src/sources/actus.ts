@@ -58,6 +58,7 @@ export function pickBalanced(lists: FeedItem[][], count: number, taste: Taste, m
 
 export const toItem = (i: FeedItem, prefix = ''): JournalItem => ({
   id: itemId(i.title), title: i.title, source: i.source, url: i.link,
+  desc: i.desc && !i.desc.startsWith(i.title.slice(0, 30)) ? i.desc : undefined,
   speech: sentence(`${prefix}${i.title}`), keywords: keywords(i.title),
 });
 
@@ -82,13 +83,11 @@ export async function googleSection(id: 'libre' | 'evenements' | 'cine', title: 
   return items;
 }
 
-export async function libreSection(topics: string[], length: 'flash' | 'complet', taste: Taste): Promise<JournalSection | null> {
-  if (!topics.length) return null;
-  const per = length === 'flash' ? 1 : 3;
-  const lists = await Promise.all(topics.map(t => fetchFeed(googleNewsUrl(`${t} when:3d`), 'Google Actualités').then(l => l.map(splitGoogleTitle))));
-  const items: JournalItem[] = [];
-  lists.forEach((l, k) => pickBalanced([l], per, taste, 80).forEach(i => items.push({ ...toItem(i), detail: topics[k] })));
-  return { id: 'libre', title: topics.length === 1 ? topics[0] : 'Tes sujets', icon: '🔎', items };
+// Un sujet de veille (choisi dans le catalogue ou tapé librement) : actualité des 3 derniers jours.
+export async function topicSection(t: { id: string; label: string; query: string; icon?: string }, count: number, taste: Taste): Promise<JournalSection> {
+  const l = (await fetchFeed(googleNewsUrl(`${t.query} when:3d`), 'Google Actualités')).map(splitGoogleTitle);
+  const items = pickBalanced([l], count, taste, 80).map(i => toItem(i));
+  return { id: `veille:${t.id}`, title: t.label, icon: t.icon || '🔎', items: items.length ? items : [{ id: `v-${t.id}-rien`, title: `Rien de neuf ces derniers jours sur « ${t.label} »`, speech: '' }] };
 }
 
 export async function evenementsSection(city: string, length: 'flash' | 'complet', taste: Taste): Promise<JournalSection> {
@@ -109,15 +108,20 @@ export async function cineSection(length: 'flash' | 'complet', taste: Taste): Pr
   return { id: 'cine', title: 'Ciné & séries', icon: '🎬', items: picked.map(i => toItem(i)) };
 }
 
-export async function bonneNouvelleSection(taste: Taste): Promise<JournalSection> {
-  const [pos, ins] = await Promise.all([
+// Plusieurs candidats « bonne nouvelle » : l'IA choisit celui qui fait vraiment sourire.
+// Sans IA, on garde les titres qui contiennent des mots positifs.
+const POSITIVE = /(sauv|record|réussi|guéri|solidar|bénévol|découv|premi[eè]re|inaugur|planté|retrouv|sourire|insolite|incroyable|génial|adopt|naissance|protég|victoire|innovation|espoir)/i;
+const NEGATIVE = /(mort|décès|tué|meurtre|drame|accident|erreur|arnaque|guerre|attentat|viol|agress|incendie|crise|pénurie|licenci|condamn)/i;
+export async function bonneNouvelleSection(taste: Taste, forAI = false): Promise<JournalSection> {
+  const [pos, gnGood, gnOdd, ins] = await Promise.all([
     fetchFeed('https://positivr.fr/feed/', 'POSITIVR'),
+    fetchFeed(googleNewsUrl('bonne nouvelle when:2d'), 'Google Actualités').then(l => l.map(splitGoogleTitle)),
+    fetchFeed(googleNewsUrl('insolite when:2d'), 'Google Actualités').then(l => l.map(splitGoogleTitle)),
     fetchFeed('https://www.20minutes.fr/feeds/rss-insolite.xml', '20 Minutes'),
   ]);
-  const a = pickBalanced([pos], 1, taste, 24 * 21)[0];
-  const b = pickBalanced([ins], 1, taste, 48)[0];
-  const items: JournalItem[] = [];
-  if (a) items.push({ ...toItem(a), detail: 'Bonne nouvelle' });
-  if (b) items.push({ ...toItem(b), detail: 'Insolite' });
-  return { id: 'bonne_nouvelle', title: 'Pour finir sur le sourire', icon: '🌈', items };
+  const all = [...pickBalanced([pos], 4, taste, 24 * 21), ...pickBalanced([gnGood], 4, taste, 60), ...pickBalanced([gnOdd], 3, taste, 60), ...pickBalanced([ins], 2, taste, 60)]
+    .filter(i => !NEGATIVE.test(i.title));
+  if (forAI) return { id: 'bonne_nouvelle', title: 'Pour finir sur le sourire', icon: '🌈', items: all.map(i => toItem(i)) };
+  const best = all.filter(i => POSITIVE.test(i.title)).slice(0, 2);
+  return { id: 'bonne_nouvelle', title: 'Pour finir sur le sourire', icon: '🌈', items: (best.length ? best : all.slice(0, 1)).map(i => toItem(i)) };
 }

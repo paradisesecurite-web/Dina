@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
-import Svg, { Circle, Defs, Line, LinearGradient, Path, RadialGradient, Rect, Stop, G } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle, Defs, Line, Path, RadialGradient, Rect, Stop, G } from 'react-native-svg';
 import { useTheme } from './theme';
 
-const useLoop = (ms: number, active = true) => {
+export const useLoop = (ms: number, active = true) => {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (!active) { v.stopAnimation(); return; }
@@ -14,52 +15,57 @@ const useLoop = (ms: number, active = true) => {
   return v;
 };
 
-// Décor de fond propre à chaque thème (dessiné en code, aucun visuel externe).
+// Fond de page propre à chaque thème (dessiné en code, aucun visuel externe).
 export function Backdrop() {
   const t = useTheme();
   const { width: w, height: h } = useWindowDimensions();
-  const scan = useLoop(6000, t.id === 'futur');
-  const sway = useLoop(9000, t.id === 'zen');
+  const scan = useLoop(7000, t.id === 'futur');
+  const sway = useLoop(10000, t.id === 'zen');
+  const grad = <LinearGradient colors={t.gradient} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 0.3, y: 1 }} />;
   if (t.id === 'futur') {
     const lines = [];
-    for (let x = 0; x < w; x += 32) lines.push(<Line key={'v' + x} x1={x} y1={0} x2={x} y2={h} stroke="#00E5FF" strokeOpacity={0.06} strokeWidth={1} />);
-    for (let y = 0; y < h; y += 32) lines.push(<Line key={'h' + y} x1={0} y1={y} x2={w} y2={y} stroke="#00E5FF" strokeOpacity={0.06} strokeWidth={1} />);
+    for (let x = 0; x < w; x += 28) lines.push(<Line key={'v' + x} x1={x} y1={0} x2={x} y2={h} stroke="#3CE6FF" strokeOpacity={0.045} strokeWidth={1} />);
+    for (let y = 0; y < h; y += 28) lines.push(<Line key={'h' + y} x1={0} y1={y} x2={w} y2={y} stroke="#3CE6FF" strokeOpacity={0.045} strokeWidth={1} />);
     return (
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        {grad}
         <Svg width={w} height={h}>
           <Defs>
-            <RadialGradient id="glow" cx="50%" cy="18%" r="70%"><Stop offset="0" stopColor="#0A3A52" stopOpacity="0.9" /><Stop offset="1" stopColor="#03070D" stopOpacity="0" /></RadialGradient>
+            <RadialGradient id="g1" cx="80%" cy="8%" r="60%"><Stop offset="0" stopColor="#1B6DFF" stopOpacity="0.28" /><Stop offset="1" stopColor="#03060D" stopOpacity="0" /></RadialGradient>
+            <RadialGradient id="g2" cx="10%" cy="70%" r="55%"><Stop offset="0" stopColor="#7D4DFF" stopOpacity="0.16" /><Stop offset="1" stopColor="#03060D" stopOpacity="0" /></RadialGradient>
           </Defs>
-          <Rect width={w} height={h} fill="url(#glow)" />
+          <Rect width={w} height={h} fill="url(#g1)" />
+          <Rect width={w} height={h} fill="url(#g2)" />
           {lines}
-          <Circle cx={w * 0.85} cy={h * 0.12} r={70} stroke="#00E5FF" strokeOpacity={0.12} strokeWidth={1} fill="none" strokeDasharray="4 8" />
-          <Circle cx={w * 0.85} cy={h * 0.12} r={48} stroke="#FF9F1C" strokeOpacity={0.12} strokeWidth={1} fill="none" />
+          <Circle cx={w * 0.88} cy={h * 0.07} r={86} stroke="#3CE6FF" strokeOpacity={0.12} strokeWidth={1} fill="none" strokeDasharray="2 7" />
+          <Circle cx={w * 0.88} cy={h * 0.07} r={60} stroke="#A07CFF" strokeOpacity={0.14} strokeWidth={1} fill="none" />
         </Svg>
-        <Animated.View style={{ position: 'absolute', left: 0, right: 0, height: 2, backgroundColor: '#00E5FF', opacity: 0.18, transform: [{ translateY: scan.interpolate({ inputRange: [0, 1], outputRange: [0, h] }) }] }} />
+        <Animated.View style={{ position: 'absolute', left: 0, right: 0, height: 80, opacity: 0.5, transform: [{ translateY: scan.interpolate({ inputRange: [0, 1], outputRange: [-80, h] }) }] }}>
+          <LinearGradient colors={['rgba(60,230,255,0)', 'rgba(60,230,255,0.07)', 'rgba(60,230,255,0)']} style={StyleSheet.absoluteFill} />
+        </Animated.View>
       </View>
     );
   }
   if (t.id === 'zen') {
-    const rot = sway.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-4deg', '4deg', '-4deg'] });
+    const rot = sway.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-3deg', '3deg', '-3deg'] });
     return (
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <Svg width={w} height={h}>
+        {grad}
+        <Svg width={w} height={h} style={StyleSheet.absoluteFill}>
           <Defs>
-            <LinearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#F4F1E6" /><Stop offset="1" stopColor="#E3ECDC" /></LinearGradient>
+            <RadialGradient id="sun" cx="88%" cy="6%" r="40%"><Stop offset="0" stopColor="#F2C98F" stopOpacity="0.55" /><Stop offset="1" stopColor="#F2C98F" stopOpacity="0" /></RadialGradient>
           </Defs>
-          <Rect width={w} height={h} fill="url(#sky)" />
-          <Circle cx={w * 0.9} cy={h * 0.08} r={110} fill="#D4A373" opacity={0.13} />
-          <Circle cx={w * 0.05} cy={h * 0.55} r={160} fill="#5E8B67" opacity={0.07} />
-          <Path d={`M0 ${h * 0.86} C ${w * 0.3} ${h * 0.8}, ${w * 0.6} ${h * 0.92}, ${w} ${h * 0.84} L ${w} ${h} L 0 ${h} Z`} fill="#5E8B67" opacity={0.1} />
-          <Path d={`M0 ${h * 0.92} C ${w * 0.35} ${h * 0.88}, ${w * 0.7} ${h * 0.97}, ${w} ${h * 0.9} L ${w} ${h} L 0 ${h} Z`} fill="#5E8B67" opacity={0.12} />
+          <Rect width={w} height={h} fill="url(#sun)" />
+          <Path d={`M0 ${h * 0.84} C ${w * 0.3} ${h * 0.78}, ${w * 0.62} ${h * 0.9}, ${w} ${h * 0.82} L ${w} ${h} L 0 ${h} Z`} fill="#7FA987" opacity={0.12} />
+          <Path d={`M0 ${h * 0.91} C ${w * 0.38} ${h * 0.86}, ${w * 0.7} ${h * 0.96}, ${w} ${h * 0.88} L ${w} ${h} L 0 ${h} Z`} fill="#5B8A66" opacity={0.14} />
         </Svg>
-        <Animated.View style={{ position: 'absolute', right: -10, top: h * 0.2, transform: [{ rotate: rot }] }}>
-          <Svg width={90} height={160} viewBox="0 0 90 160">
-            <Path d="M45 160 C 45 110, 40 70, 48 10" stroke="#5E8B67" strokeOpacity={0.35} strokeWidth={2} fill="none" />
-            {[30, 55, 80, 105].map((y, i) => (
+        <Animated.View style={{ position: 'absolute', right: -16, top: h * 0.16, transform: [{ rotate: rot }] }}>
+          <Svg width={100} height={190} viewBox="0 0 100 190">
+            <Path d="M52 190 C 52 130, 44 80, 56 8" stroke="#5B8A66" strokeOpacity={0.3} strokeWidth={2} fill="none" />
+            {[24, 52, 80, 108, 136].map((y, i) => (
               <G key={y}>
-                <Path d={`M46 ${y} C ${20} ${y - 10}, ${12} ${y + 8}, ${8} ${y + 2} C ${22} ${y + 16}, ${40} ${y + 10}, 46 ${y}`} fill="#5E8B67" opacity={0.18 + i * 0.03} />
-                <Path d={`M46 ${y + 12} C ${70} ${y + 2}, ${80} ${y + 18}, ${84} ${y + 12} C ${70} ${y + 28}, ${52} ${y + 22}, 46 ${y + 12}`} fill="#5E8B67" opacity={0.15 + i * 0.03} />
+                <Path d={`M53 ${y} C 26 ${y - 12}, 14 ${y + 10}, 8 ${y + 3} C 24 ${y + 20}, 44 ${y + 12}, 53 ${y}`} fill="#5B8A66" opacity={0.14 + i * 0.025} />
+                <Path d={`M53 ${y + 13} C 78 ${y + 1}, 90 ${y + 20}, 95 ${y + 13} C 80 ${y + 31}, 60 ${y + 25}, 53 ${y + 13}`} fill="#7FA987" opacity={0.12 + i * 0.025} />
               </G>
             ))}
           </Svg>
@@ -69,52 +75,63 @@ export function Backdrop() {
   }
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <Svg width={w} height={h}>
-        <Rect width={w} height={h} fill="#F6F2EA" />
-        {Array.from({ length: Math.ceil(h / 26) }).map((_, i) => <Line key={i} x1={0} y1={i * 26} x2={w} y2={i * 26} stroke="#B08D57" strokeOpacity={0.05} strokeWidth={1} />)}
+      {grad}
+      <Svg width={w} height={h} style={StyleSheet.absoluteFill}>
+        {Array.from({ length: Math.ceil(h / 4) }).map((_, i) => i % 7 === 0 ? <Line key={i} x1={0} y1={i * 4} x2={w} y2={i * 4} stroke="#8A7A5C" strokeOpacity={0.035} strokeWidth={1} /> : null)}
       </Svg>
     </View>
   );
 }
 
 // Animation qui « vit » quand la voix parle (différente selon le thème).
-export function VoiceOrb({ active, size = 96 }: { active: boolean; size?: number }) {
+export function VoiceOrb({ active, size = 120, listening }: { active: boolean; size?: number; listening?: boolean }) {
   const t = useTheme();
-  const spin = useLoop(t.id === 'futur' ? 3200 : 2400, active);
-  const pulse = useLoop(t.id === 'zen' ? 4000 : 1400, active);
-  const s1 = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.85, 1.12, 0.85] });
-  const s2 = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1.1, 0.9, 1.1] });
+  const on = active || !!listening;
+  const spin = useLoop(t.id === 'futur' ? 3600 : 2400, on);
+  const spin2 = useLoop(5200, on);
+  const pulse = useLoop(t.id === 'zen' ? 4200 : listening ? 900 : 1400, on);
+  const s1 = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.86, 1.1, 0.86] });
+  const s2 = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1.08, 0.92, 1.08] });
   const rot = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  const rot2 = spin2.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg'] });
   if (t.id === 'futur') {
     return (
-      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel={active ? 'La voix parle' : 'Voix en attente'}>
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel={listening ? 'J\'écoute' : active ? 'La voix parle' : 'Voix en attente'}>
         <Animated.View style={{ position: 'absolute', transform: [{ rotate: rot }] }}>
           <Svg width={size} height={size} viewBox="0 0 100 100">
-            <Circle cx={50} cy={50} r={46} stroke="#00E5FF" strokeWidth={1.5} fill="none" strokeDasharray="60 20 10 20" opacity={0.9} />
-            <Circle cx={50} cy={50} r={38} stroke="#FF9F1C" strokeWidth={1} fill="none" strokeDasharray="3 6" opacity={0.7} />
+            <Circle cx={50} cy={50} r={47} stroke="#3CE6FF" strokeWidth={1.2} fill="none" strokeDasharray="70 12 6 12" opacity={0.9} />
+            {Array.from({ length: 24 }).map((_, i) => { const a = (i / 24) * Math.PI * 2; return <Line key={i} x1={50 + Math.cos(a) * 41} y1={50 + Math.sin(a) * 41} x2={50 + Math.cos(a) * (i % 6 === 0 ? 36 : 39)} y2={50 + Math.sin(a) * (i % 6 === 0 ? 36 : 39)} stroke="#3CE6FF" strokeOpacity={0.6} strokeWidth={1} />; })}
           </Svg>
         </Animated.View>
-        <Animated.View style={{ width: size * 0.5, height: size * 0.5, borderRadius: size, backgroundColor: '#00E5FF', opacity: active ? 0.9 : 0.35, transform: [{ scale: active ? s1 : 1 }], shadowColor: '#00E5FF', shadowOpacity: 1, shadowRadius: 20, elevation: 12 }} />
-        <View style={{ position: 'absolute', width: size * 0.22, height: size * 0.22, borderRadius: size, backgroundColor: '#E6FCFF' }} />
+        <Animated.View style={{ position: 'absolute', transform: [{ rotate: rot2 }] }}>
+          <Svg width={size * 0.72} height={size * 0.72} viewBox="0 0 100 100">
+            <Circle cx={50} cy={50} r={46} stroke={listening ? '#4BFFB0' : '#A07CFF'} strokeWidth={1.4} fill="none" strokeDasharray="4 7" opacity={0.85} />
+          </Svg>
+        </Animated.View>
+        <Animated.View style={{ width: size * 0.42, height: size * 0.42, borderRadius: size, overflow: 'hidden', opacity: on ? 1 : 0.55, transform: [{ scale: on ? s1 : 1 }], shadowColor: '#3CE6FF', shadowOpacity: 1, shadowRadius: 24, elevation: 14 }}>
+          <LinearGradient colors={listening ? ['#4BFFB0', '#1B9F7A'] : ['#9AF3FF', '#3CE6FF', '#5B5BFF']} style={StyleSheet.absoluteFill} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }} />
+        </Animated.View>
+        <View style={{ position: 'absolute', width: size * 0.13, height: size * 0.13, borderRadius: size, backgroundColor: '#F2FDFF' }} />
       </View>
     );
   }
   if (t.id === 'zen') {
     return (
       <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-        <Animated.View style={{ position: 'absolute', width: size, height: size, borderRadius: size, backgroundColor: '#5E8B67', opacity: 0.15, transform: [{ scale: active ? s2 : 1 }] }} />
-        <Animated.View style={{ width: size * 0.62, height: size * 0.62, borderRadius: size, backgroundColor: '#5E8B67', opacity: active ? 0.75 : 0.45, transform: [{ scale: active ? s1 : 1 }] }} />
-        <View style={{ position: 'absolute', width: size * 0.2, height: size * 0.2, borderRadius: size, backgroundColor: '#F4F1E6' }} />
+        <Animated.View style={{ position: 'absolute', width: size, height: size, borderRadius: size, backgroundColor: listening ? '#D08C60' : '#5B8A66', opacity: 0.12, transform: [{ scale: on ? s2 : 1 }] }} />
+        <Animated.View style={{ position: 'absolute', width: size * 0.8, height: size * 0.8, borderRadius: size, backgroundColor: '#5B8A66', opacity: 0.12, transform: [{ scale: on ? s1 : 1 }] }} />
+        <Animated.View style={{ width: size * 0.56, height: size * 0.56, borderRadius: size, overflow: 'hidden', transform: [{ scale: on ? s1 : 1 }] }}>
+          <LinearGradient colors={listening ? ['#E7A77B', '#C47A4F'] : ['#8DB896', '#4F7D5A']} style={StyleSheet.absoluteFill} start={{ x: 0.2, y: 0 }} end={{ x: 0.9, y: 1 }} />
+        </Animated.View>
       </View>
     );
   }
-  // Professionnel : un égaliseur sobre
-  const bars = [0.5, 0.9, 0.65, 1, 0.7, 0.45];
+  const bars = [0.45, 0.8, 0.6, 1, 0.7, 0.9, 0.5];
   return (
-    <View style={{ width: size, height: size * 0.6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+    <View style={{ width: size, height: size * 0.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
       {bars.map((b, i) => {
-        const sc = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: i % 2 ? [b, 0.3, b] : [0.3, b, 0.3] });
-        return <Animated.View key={i} style={{ width: 6, height: size * 0.5, borderRadius: 2, backgroundColor: i % 3 === 1 ? '#B08D57' : '#8C1C2B', transform: [{ scaleY: active ? sc : 0.25 }] }} />;
+        const sc = pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: i % 2 ? [b, 0.25, b] : [0.25, b, 0.25] });
+        return <Animated.View key={i} style={{ width: 5, height: size * 0.42, borderRadius: 3, backgroundColor: listening ? t.colors.accent2 : i % 3 === 1 ? t.colors.accent2 : t.colors.accent, transform: [{ scaleY: on ? sc : 0.18 }] }} />;
       })}
     </View>
   );

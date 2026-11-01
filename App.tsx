@@ -7,9 +7,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 // Polices importées une par une (évite d'embarquer toutes les graisses dans l'APK).
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
+import { PlayfairDisplay_800ExtraBold } from '@expo-google-fonts/playfair-display/800ExtraBold';
 import { SourceSerif4_400Regular } from '@expo-google-fonts/source-serif-4/400Regular';
 import { SourceSerif4_600SemiBold } from '@expo-google-fonts/source-serif-4/600SemiBold';
-import { SourceSerif4_700Bold } from '@expo-google-fonts/source-serif-4/700Bold';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { Orbitron_600SemiBold } from '@expo-google-fonts/orbitron/600SemiBold';
 import { Orbitron_700Bold } from '@expo-google-fonts/orbitron/700Bold';
 import { Rajdhani_500Medium } from '@expo-google-fonts/rajdhani/500Medium';
 import { Rajdhani_600SemiBold } from '@expo-google-fonts/rajdhani/600SemiBold';
@@ -17,6 +21,7 @@ import { Rajdhani_700Bold } from '@expo-google-fonts/rajdhani/700Bold';
 import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
 import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
 import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
+import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 import type { Settings, ThemeId } from './src/types';
 import { ThemeProvider, THEMES } from './src/ui/theme';
 import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './src/services/storage';
@@ -25,21 +30,25 @@ import { Onboarding } from './src/screens/Onboarding';
 import { JournalScreen } from './src/screens/JournalScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { installDemoIfAsked } from './src/demo';
+import * as Crypto from 'expo-crypto';
+const newDeviceId = () => Crypto.randomUUID();
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 installDemoIfAsked();
 
 export default function App() {
   const [fontsOk] = useFonts({
-    PlayfairDisplay_700Bold, SourceSerif4_400Regular, SourceSerif4_600SemiBold, SourceSerif4_700Bold,
-    Orbitron_700Bold, Rajdhani_500Medium, Rajdhani_600SemiBold, Rajdhani_700Bold,
-    Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold,
+    PlayfairDisplay_700Bold, PlayfairDisplay_800ExtraBold, SourceSerif4_400Regular, SourceSerif4_600SemiBold,
+    Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Orbitron_600SemiBold, Orbitron_700Bold,
+    Rajdhani_500Medium, Rajdhani_600SemiBold, Rajdhani_700Bold,
+    Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold,
   });
   const [s, setS] = useState<Settings | null>(null);
   const [view, setView] = useState<'journal' | 'settings'>('journal');
   const [preview, setPreview] = useState<ThemeId | null>(null);
 
-  useEffect(() => { loadSettings().then(setS); }, []);
+  // Identifiant anonyme du téléphone (pour les limites du jour sur le serveur).
+  useEffect(() => { loadSettings().then(x => { if (!x.deviceId) { x = { ...x, deviceId: newDeviceId() }; saveSettings(x); } setS(x); }); }, []);
   useEffect(() => { if (fontsOk && s) SplashScreen.hideAsync().catch(() => {}); }, [fontsOk, s]);
 
   // Toucher la notification du matin ouvre directement le journal.
@@ -62,7 +71,7 @@ export default function App() {
     setS(prev => { const n = { ...(prev as Settings), ...p }; saveSettings(n); return n; });
   }, []);
 
-  if (!fontsOk || !s) return <View style={{ flex: 1, backgroundColor: '#F6F2EA', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#8C1C2B" /></View>;
+  if (!fontsOk || !s) return <View style={{ flex: 1, backgroundColor: '#F5F1E8', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#9E1B2F" /></View>;
 
   const themeId = !s.onboarded && preview ? preview : s.theme;
   return (
@@ -71,7 +80,7 @@ export default function App() {
         <StatusBar style={THEMES[themeId].dark ? 'light' : 'dark'} />
         {!s.invited ? <Invite onOk={() => update({ invited: true })} />
           : !s.onboarded ? <Onboarding initial={s} onPreviewTheme={setPreview} onDone={n => { setS(n); saveSettings(n); setView('journal'); }} />
-          : view === 'settings' ? <SettingsScreen s={s} update={update} onBack={() => setView('journal')} onReset={() => { setS({ ...DEFAULT_SETTINGS }); setPreview(null); setView('journal'); }} />
+          : view === 'settings' ? <SettingsScreen s={s} update={update} onBack={() => setView('journal')} onReset={() => { const n = { ...DEFAULT_SETTINGS, deviceId: s.deviceId }; setS(n); saveSettings(n); setPreview(null); setView('journal'); }} />
           : <JournalScreen settings={s} update={update} onSettings={() => setView('settings')} />}
       </ThemeProvider>
     </SafeAreaProvider>
