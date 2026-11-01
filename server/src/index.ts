@@ -81,7 +81,8 @@ Règles d'écriture :
 - "paragraphs" : découpe chaque rubrique en paragraphes de 2 à 5 phrases (chaque paragraphe sera lu d'une traite).`;
 
 function budgets(sections: InSection[], minutes: number) {
-  const total = Math.max(220, Math.round(minutes * 150));
+  // L'IA écrit en général un peu moins que demandé : on vise 25 % de plus pour tomber juste à l'oreille.
+  const total = Math.max(260, Math.round(minutes * 190));
   const base: Record<string, number> = { actu_france: 3, actu_monde: 3, libre: 2, sport: 2, meteo: 1, bonne_nouvelle: 1, histoire: 1, bourse: 1, crypto: 1, musique: 1, cine: 1.5, evenements: 1.5 };
   const w = sections.map(s => (base[s.id] ?? (s.id.startsWith('veille') ? 2 : 0.6)) * (s.priority ? 2 : 1));
   const sum = w.reduce((a, b) => a + b, 0) || 1;
@@ -113,7 +114,7 @@ async function writeJournal(env: Env, model: string, body: any) {
   const profile = `Auditeur : ${p.firstName || 'sans prénom'}${p.city ? `, habite à ${p.city}` : ''}. Date : ${p.date || today()}.
 Ton demandé : ${style.write}.
 Tutoie l'auditeur (tu, ton, toi) : n'utilise jamais « vous » ni « votre » pour t'adresser à lui.
-Durée totale visée : environ ${minutes} minutes, soit environ ${Math.round(minutes * 150)} mots au total pour l'ensemble du journal${groups.length > 1 ? ' (toutes parties confondues)' : ''}.
+Durée totale visée : environ ${minutes} minutes, soit environ ${Math.round(minutes * 190)} mots au total pour l'ensemble du journal${groups.length > 1 ? ' (toutes parties confondues)' : ''}.
 ${(body.dislikes ?? []).length ? `Sujets qui ne l'intéressent pas (à éviter ou à survoler) : ${body.dislikes.slice(0, 30).join(', ')}.` : ''}
 ${(body.likes ?? []).length ? `Sujets qu'il apprécie : ${body.likes.slice(0, 30).join(', ')}.` : ''}`;
   const isSonnet = model.startsWith('claude-sonnet');
