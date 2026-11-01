@@ -10,9 +10,7 @@ for n in ET.parse(xml).iter('node'):
     if not ok:
         continue
     x1, y1, x2, y2 = map(int, re.findall(r'\d+', n.get('bounds')))
-    score = 0 if 'EditText' not in n.get('class', '') else 1
-    if want in ('Code d\'invitation', 'Prénom', 'Ville'):
-        score = -score
+    score = 0
     if best is None or score < best[0]:
         best = (score, (x1 + x2) // 2, (y1 + y2) // 2)
 if best:
