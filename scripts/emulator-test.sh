@@ -36,7 +36,7 @@ tap "Continuer"; wait_for "Ma proposition"; shot 09-proposition
 tap "C'est parti !" 5
 wait_for "Raconté par l'IA*" 150 || wait_for "Version simple*" 5; sleep 3; shot 10-journal
 # Réglages d'abord (la roue est en haut de l'écran), puis retour.
-tap "Réglages" 3; wait_for "Apparence" 10; shot 11-reglages
+tap "Réglages" 3; wait_for "Formule" 10; shot 11-reglages
 adb shell input keyevent 4; sleep 3
 swipe_up; shot 12-journal-suite; swipe_up; swipe_up; shot 13-journal-bas
 # Écoute avec le mini-lecteur (toujours visible) : pas besoin de remonter l'écran.
