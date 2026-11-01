@@ -37,14 +37,16 @@ tap "C'est parti !" 5
 wait_for "Raconté par l'IA*" 150 || wait_for "Version simple*" 5; sleep 3; shot 10-journal
 swipe_up; shot 11-journal-suite; swipe_up; swipe_up; shot 12-journal-bas
 for i in 1 2 3 4 5 6 7 8; do swipe_down; done
-tap "Écouter" 18; shot 13-ecoute-voix-ia
-adb logcat -d | grep -iE "ExpoAudio|AudioPlayer|ExoPlayer|MediaCodec.*error" | tail -15
+tap "Écouter" 6; shot 13a-ecoute-6s; sleep 12; shot 13b-ecoute-18s; sleep 15; shot 13c-ecoute-33s
+echo "===== Lecture audio ====="
+adb logcat -d | grep -E "\[matinal\]|ExoPlayerImplInternal|Playback error|HttpDataSource|ReactNativeJS" | tail -25
 tap "Pause" 2
-tap "Question" 3; allow; sleep 4; shot 14-question
+tap "Poser une question" 3; allow; sleep 4; shot 14-question
 tap "Écrire plutôt" 2 || true
 typ "Ex. : explique-moi*" "Explique moi le premier sujet de France" 1
 tap "Envoyer" 2; wait_for "Réponse" 60; sleep 3; shot 15-reponse
 tap "Reprendre" 4; tap "Pause" 2
+for i in 1 2 3 4 5 6 7 8; do swipe_down; done
 tap "Réglages" 3; wait_for "Apparence" 10; shot 16-reglages
 echo "===== Erreurs dans le journal Android ====="
 adb logcat -d | grep -E "FATAL EXCEPTION|ReactNativeJS.*(rror|ERROR)" | head -40

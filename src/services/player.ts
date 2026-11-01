@@ -77,7 +77,9 @@ function playAI(i: number, my: number) {
   audioSub = audio.addListener('playbackStatusUpdate', st => {
     if (my !== token) return;
     if (st.playing && !started) { started = true; if (loadTimer) clearTimeout(loadTimer); set({ status: 'playing' }); }
-    if (st.didJustFinish) { cleanupAudio(); next(i, my, 120); }
+    // On ne passe à la phrase suivante que si celle-ci a vraiment été jouée
+    // (un ancien signal « terminé » peut arriver juste après le changement de phrase).
+    if (st.didJustFinish && started && st.currentTime > 0.3) { cleanupAudio(); next(i, my, 120); }
   });
   audio.play();
   aiCharsLeft -= seg.text.length;
@@ -88,6 +90,7 @@ function playAI(i: number, my: number) {
 
 function speakAt(i: number) {
   const my = ++token;
+  if (__DEV__ || true) console.log(`[matinal] phrase ${i + 1}/${segments.length}`);
   cleanupAudio();
   if (i >= segments.length) { set({ status: 'idle', index: 0, current: undefined }); return; }
   const seg = segments[i];
@@ -110,7 +113,7 @@ export const player = {
       token++; const my = token; const i = state.index;
       set({ status: 'playing' });
       audioSub?.remove();
-      audioSub = audio.addListener('playbackStatusUpdate', st => { if (my === token && st.didJustFinish) { cleanupAudio(); next(i, my, 120); } });
+      audioSub = audio.addListener('playbackStatusUpdate', st => { if (my === token && st.didJustFinish && st.currentTime > 0.3) { cleanupAudio(); next(i, my, 120); } });
       audio.play(); return;
     }
     speakAt(from ?? (state.status === 'paused' ? state.index : 0));
@@ -134,7 +137,8 @@ export const player = {
       const src = ttsSource(s, text);
       if (!audio) audio = createAudioPlayer(src); else audio.replace(src);
       aiCharsLeft -= text.length;
-      audioSub = audio.addListener('playbackStatusUpdate', st => { if (st.didJustFinish) { cleanupAudio(); done(); } });
+      let began = false;
+      audioSub = audio.addListener('playbackStatusUpdate', st => { if (st.playing) began = true; if (st.didJustFinish && began && st.currentTime > 0.3) { cleanupAudio(); done(); } });
       audio.play();
     } else {
       const tv = TONE_VOICE[toneOf(s.style)];
