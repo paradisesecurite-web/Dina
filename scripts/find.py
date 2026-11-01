@@ -2,10 +2,10 @@
 import re, sys, xml.etree.ElementTree as ET
 xml, want = sys.argv[1], sys.argv[2]
 prefix = want.endswith('*')
-want = want.rstrip('*')
+want = want.rstrip('*').lower()
 best = None
 for n in ET.parse(xml).iter('node'):
-    t, d = n.get('text', ''), n.get('content-desc', '')
+    t, d = n.get('text', '').lower(), n.get('content-desc', '').lower()
     ok = (t.startswith(want) or d.startswith(want)) if prefix else (t == want or d == want)
     if not ok:
         continue
