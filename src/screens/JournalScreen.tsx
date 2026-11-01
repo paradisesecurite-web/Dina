@@ -232,7 +232,7 @@ function DropCap({ text }: { text: string }) {
   const first = text.charAt(0), rest = text.slice(1);
   return (
     <Txt v="body" style={{ flex: 1 }}>
-      <Txt v="body" style={{ fontFamily: t.fonts.display, fontSize: 40, lineHeight: 40, color: t.colors.accent }}>{first}</Txt>{rest}
+      <Txt v="body" style={{ fontFamily: t.fonts.display, color: t.colors.accent }}>{first}</Txt>{rest}
     </Txt>
   );
 }
