@@ -5,7 +5,7 @@ import { writeWithAI } from '../src/services/ai';
 import type { Settings } from '../src/types';
 
 const base: Settings = {
-  ...DEFAULT_SETTINGS, onboarded: true, firstName: 'Yohann', style: 'chaleureux', tier: 'premium', minutes: 10, deviceId: 'test-automatique-0002',
+  ...DEFAULT_SETTINGS, onboarded: true, firstName: 'Yohann', style: 'chaleureux', tier: 'premium', minutes: 10, deviceId: 'test-journal-' + Date.now(),
   city: { name: 'Lyon', lat: 45.76, lon: 4.83 },
   rubriques: ['meteo', 'actu_france', 'actu_monde', 'libre', 'sport', 'crypto', 'carburant', 'saint', 'horoscope', 'mot', 'citation', 'bonne_nouvelle'],
   topics: [{ id: 'immo', label: 'Immobilier', query: 'immobilier prix' }, { id: 'esport', label: 'E-sport', query: 'esport compétition jeux vidéo' }, { id: 'perso-1', label: "L'équitation", query: 'équitation' }],

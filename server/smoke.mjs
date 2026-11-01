@@ -1,6 +1,6 @@
 // Test du serveur en ligne avec les vraies clés : santé, journal, voix, question.
 const URL_ = process.argv[2];
-const H = { 'content-type': 'application/json', 'x-invite-code': 'MATINAL-AMIS', 'x-device-id': 'test-automatique-0001' };
+const H = { 'content-type': 'application/json', 'x-invite-code': 'MATINAL-AMIS', 'x-device-id': 'test-' + Date.now() };
 const post = (p, b) => fetch(URL_ + p, { method: 'POST', headers: H, body: JSON.stringify(b) });
 const sample = {
   profile: { firstName: 'Yohann', city: 'Lyon', style: 'chaleureux', minutes: 3, date: 'lundi 2 novembre' },
