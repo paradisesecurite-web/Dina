@@ -10,6 +10,8 @@ for n in ET.parse(xml).iter('node'):
     if not ok:
         continue
     x1, y1, x2, y2 = map(int, re.findall(r'\d+', n.get('bounds')))
+    if y2 - y1 < 12 or x2 - x1 < 12:
+        continue  # élément caché ou coupé par le bord de l'écran
     score = 0
     if best is None or score < best[0]:
         best = (score, (x1 + x2) // 2, (y1 + y2) // 2)

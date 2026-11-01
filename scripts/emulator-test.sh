@@ -25,7 +25,7 @@ tap "Continuer"; wait_for "Qu'attends-tu de ton journal ?"
 tap "Être informé vite" 1; tap "Me cultiver" 1; shot 03-attentes
 tap "Continuer"; wait_for "Ton rythme le matin ?"
 tap "Continuer"; wait_for "Qu'est-ce qui t'intéresse ?"
-tap "Actualité" 1; tap "Sport" 1; tap "Bourse & cryptos" 1; tap "Horoscope" 1; shot 04-interets
+tap "Actualité" 1; tap "Sport" 1; tap "Bourse & cryptos" 1; shot 04-interets
 tap "Continuer"; wait_for "Où habites-tu ?"
 typ "Tape le nom de ta ville" "Lyon" 1
 wait_for "Auvergne-Rhône-Alpes*" 20; shot 05-ville
