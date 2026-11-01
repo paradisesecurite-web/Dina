@@ -1,0 +1,22 @@
+import type { Settings } from '../types';
+
+export const DEFAULT_SETTINGS: Settings = {
+  onboarded: false,
+  invited: false,
+  firstName: '',
+  theme: 'pro',
+  tone: 'journaliste',
+  length: 'flash',
+  rate: 1,
+  rubriques: ['meteo', 'actu_france', 'actu_monde', 'citation', 'bonne_nouvelle'],
+  wellbeing: 'aucun',
+  notify: { enabled: false, hour: 7, minute: 0 },
+  goals: [],
+  cryptos: ['bitcoin', 'ethereum'],
+  stocks: [{ symbol: '^FCHI', name: 'CAC 40' }],
+  artists: [],
+  teams: [],
+  language: 'anglais',
+  freeTopics: [],
+  fuel: 'gazole',
+};

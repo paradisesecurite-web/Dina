@@ -1,0 +1,23 @@
+// Pensées positives écrites pour l'application.
+export const PENSEES = [
+  "Aujourd'hui n'a pas besoin d'être parfait pour être une belle journée.",
+  'Une petite victoire reste une victoire. Commence par une seule chose.',
+  "Tu as déjà traversé des journées plus difficiles que celle-ci. Tu sais faire.",
+  'Respire. Ce qui compte vraiment tient souvent en peu de choses.',
+  'Sois aussi gentil avec toi-même que tu le serais avec un ami.',
+  "Le calme n'est pas l'absence de bruit, c'est la présence d'esprit.",
+  'Garde un moment pour toi aujourd\'hui, même cinq minutes.',
+  "Chaque matin est une page blanche. Pas besoin d'écrire un roman, une phrase suffit.",
+  'Souris à quelqu\'un aujourd\'hui. Ça ne coûte rien et ça change beaucoup.',
+  "Fais de ton mieux, et laisse le reste faire sa part.",
+  "Ralentir n'est pas reculer.",
+  'La journée commence maintenant, et elle t\'appartient.',
+  "Ce que tu fais aujourd'hui, même petit, construit demain.",
+  'Remarque trois choses agréables aujourd\'hui. Elles sont là.',
+  "Tu n'as pas à tout porter seul. Demander de l'aide est une force.",
+  "Une tasse chaude, un peu de lumière, une bonne nouvelle : c'est un bon début.",
+  "Avance à ton rythme. C'est le bon.",
+  'Fier de toi pour ce que tu fais, même quand personne ne le voit.',
+  'Les nuages passent. Toujours.',
+  "Aujourd'hui, choisis une chose à ne pas prendre trop au sérieux.",
+];

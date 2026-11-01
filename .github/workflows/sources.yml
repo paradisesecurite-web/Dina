@@ -1,13 +1,14 @@
-name: Test des sources
+name: Test du journal (vraies sources)
 on:
   workflow_dispatch:
   push:
-    paths: ['scripts/probe-sources.mjs']
+    paths: ['src/sources/**', 'src/journal/**', 'scripts/test-journal.ts', '.github/workflows/sources.yml']
 jobs:
-  probe:
+  journal:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: node scripts/probe-sources.mjs
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - run: npx --yes tsx scripts/test-journal.ts
