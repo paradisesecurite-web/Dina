@@ -106,17 +106,22 @@ async function writeJournal(env: Env, model: string, body: any) {
   const groups: { s: InSection; w: number }[][] = [[]];
   let acc = 0;
   sections.forEach((s, i) => {
-    if (acc > 2200 && groups[groups.length - 1].length) { groups.push([]); acc = 0; }
+    // Parties d'environ 600 mots : l'IA tient bien la longueur demandée sur des textes courts.
+    if (acc >= 600 && groups[groups.length - 1].length) { groups.push([]); acc = 0; }
     groups[groups.length - 1].push({ s, w: words[i] }); acc += words[i];
   });
   const profile = `Auditeur : ${p.firstName || 'sans prénom'}${p.city ? `, habite à ${p.city}` : ''}. Date : ${p.date || today()}.
 Ton demandé : ${style.write}.
+Tutoie l'auditeur (tu, ton, toi) : n'utilise jamais « vous » ni « votre » pour t'adresser à lui.
 Durée totale visée : environ ${minutes} minutes, soit environ ${Math.round(minutes * 150)} mots au total pour l'ensemble du journal${groups.length > 1 ? ' (toutes parties confondues)' : ''}.
 ${(body.dislikes ?? []).length ? `Sujets qui ne l'intéressent pas (à éviter ou à survoler) : ${body.dislikes.slice(0, 30).join(', ')}.` : ''}
 ${(body.likes ?? []).length ? `Sujets qu'il apprécie : ${body.likes.slice(0, 30).join(', ')}.` : ''}`;
   const isSonnet = model.startsWith('claude-sonnet');
   const results = await Promise.all(groups.map(async (g, gi) => {
-    const part = groups.length > 1 ? `\nCe texte est la partie ${gi + 1} sur ${groups.length} du journal. ${gi === 0 ? 'Écris une introduction (salutation, date).' : 'Ne refais pas d\'introduction : "intro" doit être vide.'} ${gi === groups.length - 1 ? 'Écris une conclusion chaleureuse.' : '"outro" doit être vide.'}` : '';
+    const target = g.reduce((n, x) => n + x.w, 0);
+    const part = groups.length > 1
+      ? `\nCe texte est la partie ${gi + 1} sur ${groups.length} du journal (les autres parties sont écrites à part). Cette partie doit faire environ ${target} mots au total. ${gi === 0 ? 'Écris une introduction courte (salutation, date).' : 'Ne salue pas et ne refais pas d\'introduction : "intro" doit être vide ; enchaîne directement par une transition naturelle.'} ${gi === groups.length - 1 ? 'Écris une conclusion chaleureuse.' : '"outro" doit être vide.'}`
+      : `\nLe journal complet doit faire environ ${target} mots.`;
     const res = await client.beta.messages.parse({
       model,
       max_tokens: 16000,
