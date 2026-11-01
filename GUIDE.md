@@ -1,7 +1,29 @@
 # Matinal — guide simple
 
-Matinal (nom provisoire) prépare chaque matin un journal personnalisé, à lire ou à écouter.
-Tout fonctionne sur le téléphone, gratuitement : aucune clé, aucun abonnement, aucun compte.
+Matinal (nom provisoire) prépare chaque matin un journal personnalisé, à lire ou à écouter,
+raconté par l'IA Claude avec une voix naturelle. On peut l'interrompre pour poser une question à voix haute.
+
+## Comment ça marche
+
+- Le téléphone récupère les infos du jour dans des sources publiques gratuites.
+- Le petit serveur Matinal (Cloudflare, gratuit) les envoie à l'IA Claude, qui rédige le journal,
+  puis fabrique la voix avec OpenAI. Les clés API restent sur ce serveur, jamais dans l'application.
+- Trois formules au choix dans l'application : Gratuite (sans IA), Standard (Claude Haiku, 10 min de voix IA/jour),
+  Premium (Claude Sonnet, 15 min de voix IA/jour). Les plafonds se changent dans `server/src/tiers.ts`.
+- Pendant le test, c'est toi qui paies l'IA : surveille tes plafonds sur console.anthropic.com et platform.openai.com.
+
+## Coûts estimés (par ami, par mois, journal de 10 min par jour)
+
+- Premium : environ 2 € d'IA Claude + 4,5 € de voix ≈ 7 €.
+- Standard : environ 0,20 € d'IA + 4,5 € de voix ≈ 5 €.
+- Gratuite : 0 €.
+
+## Clés et serveur
+
+Les 4 secrets GitHub (Settings › Secrets and variables › Actions) : `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. À chaque modification du dossier `server/`, le serveur est
+remis en ligne et testé automatiquement (onglet Actions). Ta clé Anthropic actuelle expire le 1er décembre 2026 :
+crée-en une nouvelle et remplace le secret `ANTHROPIC_API_KEY`, puis relance « Mettre le serveur en ligne ».
 
 ## 1. Récupérer l'APK (le fichier d'installation)
 
@@ -30,7 +52,9 @@ Pour une mise à jour : installe simplement le nouvel APK par-dessus, les régla
 ## 4. Conseils
 
 - **Notification du matin** : l'autorisation est demandée seulement si tu l'actives.
-- **Voix** : Matinal utilise la voix du téléphone. Pour une voix plus naturelle :
+- **Questions à voix haute** : touche le micro et parle (« explique-moi ce sujet », « suivant », « pause », « reprends »).
+  Le micro n'est demandé qu'à la première question.
+- **Voix de secours** : quand la voix IA du jour est épuisée, c'est la voix du téléphone. Pour qu'elle soit plus naturelle :
   Paramètres Android › Accessibilité › Synthèse vocale › Moteur de Google ›
   Installer les données vocales › Français.
 - **Samsung / Xiaomi** : si la notification n'arrive pas, exclue Matinal de
