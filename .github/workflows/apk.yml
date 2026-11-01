@@ -48,9 +48,19 @@ jobs:
           arch: x86_64
           disable-animations: true
           script: bash scripts/emulator-test.sh test-x86.apk
-      - uses: actions/upload-artifact@v4
+      - name: Captures du test (page « Releases », version « tests-automatiques »)
         if: always()
-        with: { name: captures-test, path: screens }
+        run: cd screens && zip -q ../captures-test.zip * && cd ..
+      - uses: softprops/action-gh-release@v2
+        if: always()
+        with:
+          tag_name: tests-automatiques
+          name: Tests automatiques (captures d'écran, ne pas installer)
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          body: Captures d'écran du dernier test sur téléphone virtuel. Ce n'est pas une version à installer.
+          files: captures-test.zip
+          overwrite_files: true
       - name: Publication (page « Releases » du dépôt)
         uses: softprops/action-gh-release@v2
         with:
