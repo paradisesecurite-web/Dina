@@ -2,7 +2,7 @@ name: Fabriquer l'APK Android
 on:
   workflow_dispatch:
   push:
-    paths-ignore: ['scripts/**', '**.md']
+    paths-ignore: ['scripts/**', '**.md', 'server/**', '.github/workflows/server.yml', '.github/workflows/sources.yml']
 permissions:
   contents: write
 jobs:

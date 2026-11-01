@@ -1,0 +1,15 @@
+# Petit serveur de Matinal (Cloudflare Workers, offre gratuite).
+# Il garde les clés API à l'abri et applique les limites par formule.
+name = "matinal-api"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "QUOTA"
+id = "__KV_ID__"
+
+[vars]
+# Codes d'invitation acceptés (les mêmes que dans l'application).
+INVITE_CODES = "MATINAL-AMIS,BONJOUR2026"
