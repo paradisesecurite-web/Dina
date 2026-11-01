@@ -64,8 +64,9 @@ export async function fetchFeed(url: string, source: string): Promise<FeedItem[]
 
 // Google Actualités met la source à la fin du titre : « Titre - Le Parisien ».
 export function splitGoogleTitle(i: FeedItem): FeedItem {
-  const m = i.title.match(/^(.*) - ([^-]{2,60})$/);
-  return m ? { ...i, title: m[1].trim(), source: m[2].trim() } : i;
+  const k = i.title.lastIndexOf(' - ');
+  if (k < 10 || i.title.length - k > 60) return i;
+  return { ...i, title: i.title.slice(0, k).trim(), source: i.title.slice(k + 3).trim() };
 }
 
 export function googleNewsUrl(query: string) {

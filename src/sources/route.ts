@@ -30,7 +30,7 @@ export async function carburantSection(p: Place, fuel: Settings['fuel']): Promis
   return {
     id: 'carburant', title: 'Carburant', icon: '⛽',
     items: [{
-      id: 'fuel', title: `${label} le moins cher : ${eur(best[`${fuel}_prix`])}`, detail: `${name} · moyenne alentour ${eur(avg)}`,
+      id: 'fuel', title: `${label.charAt(0).toUpperCase() + label.slice(1)} le moins cher : ${eur(best[`${fuel}_prix`])}`, detail: `${name} · moyenne alentour ${eur(avg)}`,
       speech: `Le ${label} le moins cher près de chez toi est à ${best[`${fuel}_prix`].toFixed(2).replace('.', ' euros ')}, ${name}.`,
       source: 'prix-carburants.gouv.fr', url: 'https://www.prix-carburants.gouv.fr/',
       action: { label: 'Y aller', url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}` },

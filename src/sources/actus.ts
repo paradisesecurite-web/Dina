@@ -20,6 +20,9 @@ export const FEEDS_MONDE = [
   { name: 'Courrier international', url: 'https://www.courrierinternational.com/feed/all/rss.xml' },
 ];
 
+// Ajoute un point final seulement s'il manque une ponctuation.
+export const sentence = (t: string) => (/[.!?…»"”)]$/.test(t.trim()) ? t.trim() : `${t.trim()}.`);
+
 export type Taste = Record<string, number>; // mot-clé -> poids (+ j'aime, - pas intéressé)
 
 export function score(title: string, taste: Taste): number {
@@ -55,7 +58,7 @@ export function pickBalanced(lists: FeedItem[][], count: number, taste: Taste, m
 
 export const toItem = (i: FeedItem, prefix = ''): JournalItem => ({
   id: itemId(i.title), title: i.title, source: i.source, url: i.link,
-  speech: `${prefix}${i.title}.`, keywords: keywords(i.title),
+  speech: sentence(`${prefix}${i.title}`), keywords: keywords(i.title),
 });
 
 export async function newsSection(kind: 'actu_france' | 'actu_monde', count: number, taste: Taste): Promise<JournalSection> {

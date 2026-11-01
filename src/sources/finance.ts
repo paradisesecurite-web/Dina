@@ -1,8 +1,8 @@
 import type { JournalSection } from '../types';
 import { getJson, enc } from './http';
 
-const pct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1).replace('.', ',')} %`;
-const pctSpoken = (n: number) => `${n >= 0 ? 'en hausse' : 'en baisse'} de ${Math.abs(n).toFixed(1).replace('.', ',')} pour cent`;
+const pct = (n: number) => (Math.abs(n) < 0.05 ? 'stable' : `${n >= 0 ? '+' : ''}${n.toFixed(1).replace('.', ',')} %`);
+const pctSpoken = (n: number) => (Math.abs(n) < 0.05 ? 'stable' : `${n >= 0 ? 'en hausse' : 'en baisse'} de ${Math.abs(n).toFixed(1).replace('.', ',')} pour cent`);
 const money = (n: number, cur = '€') => `${n.toLocaleString('fr-FR', { maximumFractionDigits: n >= 100 ? 0 : 2 })} ${cur}`;
 
 export const DEFAULT_CRYPTOS = [{ id: 'bitcoin', name: 'Bitcoin' }, { id: 'ethereum', name: 'Ethereum' }];

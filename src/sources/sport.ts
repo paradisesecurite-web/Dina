@@ -13,7 +13,7 @@ export async function searchTeam(q: string): Promise<{ id: string; name: string;
 }
 
 const when = (ts: string) => new Date(ts.endsWith('Z') ? ts : ts + 'Z');
-const hh = (d: Date) => `${d.getHours()} h${d.getMinutes() ? String(d.getMinutes()).padStart(2, '0') : ''}`;
+const hh = (d: Date) => `${d.getHours()} h${d.getMinutes() ? ' ' + String(d.getMinutes()).padStart(2, '0') : ''}`;
 
 export async function sportSection(teams: { id: string; name: string }[], length: 'flash' | 'complet', taste: Taste): Promise<JournalSection> {
   const items: JournalItem[] = [];

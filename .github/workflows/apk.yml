@@ -1,0 +1,44 @@
+name: Fabriquer l'APK Android
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore: ['scripts/**', '**.md']
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm ci
+      - name: Vérification du code
+        run: npx tsc --noEmit
+      - name: Préparation du projet Android
+        run: npx expo prebuild --platform android --no-install --clean
+      - name: Compilation
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+      - name: Nom du fichier
+        id: v
+        run: |
+          V=$(node -p "require('./app.json').expo.version")
+          cp android/app/build/outputs/apk/release/app-release.apk "Matinal-$V-test${{ github.run_number }}.apk"
+          echo "file=Matinal-$V-test${{ github.run_number }}.apk" >> $GITHUB_OUTPUT
+          echo "tag=v$V-test${{ github.run_number }}" >> $GITHUB_OUTPUT
+          ls -la *.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: Matinal-APK, path: '${{ steps.v.outputs.file }}' }
+      - name: Publication (page « Releases » du dépôt)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: Matinal ${{ steps.v.outputs.tag }}
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          body: Version de test de Matinal. Télécharge le fichier .apk ci-dessous sur ton téléphone Android pour l'installer.
+          files: ${{ steps.v.outputs.file }}
