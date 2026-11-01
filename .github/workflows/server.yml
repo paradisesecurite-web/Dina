@@ -36,14 +36,19 @@ jobs:
         id: sub
         run: |
           API=https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain
-          SUB=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" $API | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).result?.subdomain||'')}catch{console.log('')}})")
+          R=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" $API); echo "Réponse : $R" | head -c 600; echo
+          SUB=$(echo "$R" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).result?.subdomain||'')}catch{console.log('')}})")
           if [ -z "$SUB" ]; then
             SUB="matinal-$(echo $CLOUDFLARE_ACCOUNT_ID | cut -c1-6)"
-            curl -s -X PUT -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" -d "{\"subdomain\":\"$SUB\"}" $API | head -c 400; echo
+            echo "Création du sous-domaine $SUB"
+            curl -s -X PUT -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" -d "{\"subdomain\":\"$SUB\"}" $API; echo
           fi
           echo "sub=$SUB" >> $GITHUB_OUTPUT
       - name: Mise en ligne
         run: npx wrangler deploy
+      - name: Activer l'adresse workers.dev du serveur
+        run: |
+          curl -s -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" -d '{"enabled":true,"previews_enabled":false}' "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/matinal-api/subdomain"; echo
       - name: Clés secrètes du serveur
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -53,5 +58,5 @@ jobs:
         run: |
           URL="https://matinal-api.${{ steps.sub.outputs.sub }}.workers.dev"
           echo "ADRESSE DU SERVEUR : $URL"; echo "### Serveur : $URL" >> $GITHUB_STEP_SUMMARY
-          sleep 10
+          for i in $(seq 1 30); do curl -s -m 10 "$URL/v1/health" | grep -q '"ok":true' && { echo "✅ Serveur joignable"; break; }; echo "attente de l'adresse ($i)…"; sleep 10; done
           node smoke.mjs "$URL"
